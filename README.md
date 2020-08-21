@@ -52,9 +52,9 @@ Implementing this approach requires two actions:
 
 ## S3 Serde for clients
 
-The second approach involves a third party s3 provider who will offload the actual payload from Kafka and rather pass S3 reference for the producers and consumers to exchange. With those reference and both clients have their own access to the S3 bucket, serializers can swap the reference from the actual payload store in S3.
+The second approach involves a third party s3 provider who will offload the actual payload from Kafka and rather pass S3 reference for the producers and consumers to exchange. With those reference and both clients have their own access to the S3 bucket and serializers can swap the reference from the actual payload store in S3.
 
-This approach involves now code change and only configuration. Both the producers and consumers will have to load the S3 payload in memory requires a heap big enough for the specific use case.
+This approach involves no code change and just configuration. Both the producers and consumers will have to load the S3 payload in memory and will required a heap sized accordinly.
 
 The S3 Serde is a community project from https://github.com/bakdata/kafka-s3-backed-serde and is available on Maven Central through this dependency : 
 
