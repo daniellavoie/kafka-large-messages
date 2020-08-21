@@ -1,5 +1,5 @@
 ---
-version: '2'
+version: '3.7'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -24,5 +24,49 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER:PLAINTEXT,LOCALHOST:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      
+  zookeeper-large:
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+    - 2182:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka-large:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka
+    depends_on:
+    - zookeeper-large
+    ports:
+    - 9093:9092
+    - 19093:19092
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LOCALHOST://localhost:9092,DOCKER://kafka:19092
+      KAFKA_BROKER_ID: 1
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER:PLAINTEXT,LOCALHOST:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-large:2181
       KAFKA_MESSAGE_MAX_BYTES: 10485880
       KAFKA_REPLICA_FETCH_MAX_BYTES: 10485880
+
+  minio1:
+    image: minio/minio:RELEASE.2020-08-18T19-41-00Z
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_REGION_NAME: "r1"
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+volumes:
+  minio-data:

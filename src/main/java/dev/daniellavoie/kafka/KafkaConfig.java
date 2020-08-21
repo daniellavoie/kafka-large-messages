@@ -2,7 +2,6 @@ package dev.daniellavoie.kafka;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.admin.AdminClient;
@@ -24,19 +23,16 @@ public class KafkaConfig {
 	private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConfig.class);
 
 	@Bean
-	public Consumer<String, String> payloadConsumer(LargePayloadTopic largePayloadTopic,
+	public Consumer<String, String> defaultPayloadConsumer(LargePayloadTopic largePayloadTopic,
 			KafkaProperties kafkaProperties, @Value("${spring.kafka.client-id}") String clientId) {
 		createTopicIfMissing(largePayloadTopic, AdminClient.create(kafkaProperties.buildAdminProperties()));
 
-//		Map<String, Object> consumerProperties = kafkaProperties.buildConsumerProperties();
-//		consumerProperties.put("client.id", clientId);
-		
 		return new DefaultKafkaConsumerFactory<String, String>(kafkaProperties.buildConsumerProperties())
 				.createConsumer();
 	}
 
 	@Bean
-	public KafkaTemplate<String, String> payloadTemplate(KafkaProperties kafkaProperties) {
+	public KafkaTemplate<String, String> defaultPayloadTemplate(KafkaProperties kafkaProperties) {
 		return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaProperties.buildProducerProperties()));
 	}
 
